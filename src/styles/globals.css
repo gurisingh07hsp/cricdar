@@ -1,0 +1,131 @@
+/* src/styles/globals.css */
+@import "tailwindcss";
+
+/* Define abstract color roles as CSS Custom Properties */
+@layer base {
+    :root {
+        /* Light Theme Variables (Inspired by CRICOAR Logo) */
+        --main-bg: 210 40% 98%;
+        /* Near white (e.g., slate-50) */
+        --main-surface: 0 0% 100%;
+        /* Pure White */
+        --main-border: 210 20% 88%;
+        /* Light gray (e.g., slate-200) */
+        --main-text-base: 220 15% 20%;
+        /* Dark gray/near-black (e.g., slate-800) */
+        --main-text-muted: 220 10% 45%;
+        /* Medium gray (e.g., slate-500/600) */
+
+        /* Primary color from the logo's cricket ball red */
+        --primary-color: 4 71% 45%;
+        /* Rich Red */
+        --primary-color-hover: 4 71% 38%;
+        /* Darker Red */
+        --primary-text-on-primary: 0 0% 100%;
+        /* White text for on primary bg */
+
+        /* Secondary color from the logo's golden seam */
+        --secondary-color: 40 90% 55%;
+        /* Golden Yellow/Amber */
+        --secondary-color-hover: 40 90% 48%;
+        /* Darker Golden Yellow */
+
+        /* Status Colors - Aligned with the new theme */
+        --status-live-bg: 4 71% 45%;
+        /* Use Primary Red for Live status */
+        --status-live-text: 4 70% 97%;
+        /* Light text on red */
+        --status-upcoming-bg: 205 80% 55%;
+        /* Sky Blue (Kept for clear distinction) */
+        --status-upcoming-text: 205 80% 98%;
+        /* Light text on sky */
+        --status-finished-bg: 210 15% 75%;
+        /* Slate Gray */
+        --status-finished-text: 220 15% 25%;
+        /* Dark text on light gray */
+
+        /* Radii (can stay the same or also be themed) */
+        --radius-card-val: 0.75rem;
+        --radius-button-val: 0.5rem;
+    }
+
+    html.dark {
+        /* Dark Theme Variable Overrides (Inspired by CRICOAR Logo) */
+        --main-bg: 220 20% 8%;
+        /* Very Dark Blue/Almost Black */
+        --main-surface: 220 20% 12%;
+        /* Dark Gray */
+        --main-border: 222 30% 25%;
+        /* #374151 */
+        --main-text-base: 210 40% 96%;
+        /* #f3f4f6 */
+        --main-text-muted: 215 20% 65%;
+        /* #9ca3af */
+
+        /* Primary color brightened slightly for vibrancy in dark mode */
+        --primary-color: 4 75% 55%;
+        /* Brighter Red */
+        --primary-color-hover: 4 75% 48%;
+        /* Darker Red */
+        --primary-text-on-primary: 0 0% 100%;
+        /* White text for contrast */
+
+        /* Secondary color brightened slightly for vibrancy in dark mode */
+        --secondary-color: 40 95% 60%;
+        /* Brighter Golden Yellow */
+        --secondary-color-hover: 40 95% 53%;
+        /* Darker Golden Yellow */
+
+        /* Status Colors for Dark Theme - Aligned with the new theme */
+        --status-live-bg: 4 75% 55%;
+        /* Use Primary Red for Live status */
+        --status-live-text: 4 75% 96%;
+        /* Light text on red */
+        --status-upcoming-bg: 200 80% 50%;
+        /* Sky Blue (Kept for clear distinction) */
+        --status-upcoming-text: 200 80% 97%;
+        /* Light text on sky */
+        --status-finished-bg: 220 15% 40%;
+        /* Gray 600 (#4b5563) */
+        --status-finished-text: 220 15% 90%;
+        /* Gray 200 (#e5e7eb) */
+    }
+
+    body {
+        /* Apply your main background and text color here using the HSL variables */
+        @apply bg-app-bg text-app-text-base antialiased transition-colors duration-300;
+        font-feature-settings: "rlig" 1, "calt" 1;
+    }
+}
+
+@theme {
+    /* Application Semantic Colors - Mapped to the abstract roles */
+    --color-app-bg: hsl(var(--main-bg));
+    --color-app-surface: hsl(var(--main-surface));
+    --color-app-border: hsl(var(--main-border));
+    --color-app-text-base: hsl(var(--main-text-base));
+    --color-app-text-muted: hsl(var(--main-text-muted));
+
+    --color-app-primary: hsl(var(--primary-color));
+    --color-app-primary-hover: hsl(var(--primary-color-hover));
+    --color-app-text-on-primary: hsl(var(--primary-text-on-primary));
+    /* For text on primary buttons */
+
+    --color-app-secondary: hsl(var(--secondary-color));
+    --color-app-secondary-hover: hsl(var(--secondary-color-hover));
+
+    /* Status Specific Colors */
+    --color-status-live-bg: hsl(var(--status-live-bg));
+    --color-status-live-text: hsl(var(--status-live-text));
+    --color-status-upcoming-bg: hsl(var(--status-upcoming-bg));
+    --color-status-upcoming-text: hsl(var(--status-upcoming-text));
+    --color-status-finished-bg: hsl(var(--status-finished-bg));
+    --color-status-finished-text: hsl(var(--status-finished-text));
+
+    /* Radii */
+    --radius-card: var(--radius-card-val);
+    --radius-button: var(--radius-button-val);
+
+    /* Extend other theme aspects if needed */
+    /* --font-sans: var(--font-inter, ui-sans-serif, system-ui); */
+}
