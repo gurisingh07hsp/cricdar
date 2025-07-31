@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { RiArrowLeftSLine, RiCalendarLine, RiUserLine, RiEyeLine, RiBookmarkLine, RiShareLine, RiTagLine, RiTimeLine } from 'react-icons/ri';
+import { RiArrowLeftSLine, RiCalendarLine, RiUserLine, RiEyeLine, RiBookmarkLine, RiShareLine, RiPriceTag3Line, RiTimeLine } from 'react-icons/ri';
 
 // Mock blog data - in real app this would come from API
 const blogPosts = [
@@ -172,7 +172,7 @@ export default function NewsArticlePage({ params }: PageProps) {
                 {/* Tags */}
                 <div className="mt-8 pt-6 border-t border-app-border">
                   <div className="flex items-center space-x-2 mb-4">
-                    <RiTagLine className="w-5 h-5 text-app-text-muted" />
+                    <RiPriceTag3Line className="w-5 h-5 text-app-text-muted" />
                     <span className="text-sm font-semibold text-app-text-base">Tags:</span>
                   </div>
                   <div className="flex flex-wrap gap-2">
