@@ -20,7 +20,7 @@ export interface FullNewsArticleData extends NewsArticleProps {
 // Extended Dummy Data (example for two articles)
 const DUMMY_NEWS_IMAGE_URL = "/images/placeholder-news.jpg"; // Re-use this
 
-const allFullNewsArticles: Record<string, FullNewsArticleData> = {
+const _allFullNewsArticles: Record<string, FullNewsArticleData> = {
   "news1": {
     id: "news1",
     title: "Historic Win: Green Strikers Clinch T20 Championship",
@@ -64,7 +64,7 @@ const allFullNewsArticles: Record<string, FullNewsArticleData> = {
 };
 
 // We'll also need the preview data for "Related Articles" sidebar
-const dummyNewsArticlePreviews: NewsArticleProps[] = [
+const _dummyNewsArticlePreviews: NewsArticleProps[] = [
   { id: "news1", title: "Historic Win: Green Strikers Clinch T20 Championship", snippet: "In a nail-biting final...", imageUrl: DUMMY_NEWS_IMAGE_URL, date: "May 30, 2025", category: "Tournament Finals", link: "/news/news1" },
   { id: "news2", title: "Captain Sharma Hits Record-Breaking Century", snippet: "G. Sharma's phenomenal batting display...", imageUrl: DUMMY_NEWS_IMAGE_URL, date: "May 29, 2025", category: "Player Milestones", link: "/news/news2" },
   { id: "news3", title: "Upcoming Ashes Series: Predictions & Key Players", snippet: "Experts weigh in on the upcoming Ashes...", imageUrl: DUMMY_NEWS_IMAGE_URL, date: "May 28, 2025", category: "Series Previews", link: "/news/news3" },

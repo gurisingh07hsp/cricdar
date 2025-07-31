@@ -15,7 +15,7 @@ export interface NewsArticleProps {
 }
 
 const NewsArticlePreviewCard: React.FC<NewsArticleProps> = ({
-  id,
+  _id,
   title,
   snippet,
   imageUrl,

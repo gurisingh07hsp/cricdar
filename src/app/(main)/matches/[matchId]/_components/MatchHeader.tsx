@@ -1,5 +1,6 @@
 import { ApiMatch } from '@/types/cricket';
-import { FaRegCalendarAlt, FaMapMarkerAlt } from 'react-icons/fa';
+import { FaRegCalendarAlt, FaMapMarkerAlt, FaTrophy } from 'react-icons/fa';
+import { RiLiveLine } from 'react-icons/ri';
 
 const MatchHeader = ({ match }: { match: ApiMatch }) => {
     // FIX: Instead of relying on array order, we will create a robust mapping.
@@ -16,46 +17,149 @@ const MatchHeader = ({ match }: { match: ApiMatch }) => {
     const team2Info = match.teamInfo?.find(t => t.name === team2Name);
     const team2Score = match.score?.find(s => s.inning.includes(team2Name));
 
+    // Determine match status styling
+    const getStatusStyle = (status: string) => {
+        if (status.toLowerCase().includes('live')) {
+            return 'bg-red-600 text-white animate-pulse';
+        } else if (status.toLowerCase().includes('won')) {
+            return 'bg-green-600 text-white';
+        } else if (status.toLowerCase().includes('drawn')) {
+            return 'bg-yellow-600 text-white';
+        } else {
+            return 'bg-blue-600 text-white';
+        }
+    };
+
     return (
-        <div className="bg-app-surface rounded-lg shadow-lg p-5 md:p-6 text-app-text-base">
-            <div className="flex flex-col md:flex-row justify-between items-start mb-4">
-                <h1 className="text-2xl md:text-3xl font-bold text-app-primary">{match.name}</h1>
-                <div className="mt-2 md:mt-0 px-3 py-1 text-sm font-bold rounded-full bg-red-600 text-white">
-                    {match.status}
+        <div className="bg-app-surface rounded-lg shadow-lg border border-app-border">
+            <div className="p-4">
+                {/* Header Section */}
+                <div className="flex flex-col lg:flex-row justify-between items-start mb-4">
+                    <div className="flex-1">
+                        <div className="flex items-center space-x-2 mb-2">
+                            <div className="p-1.5 bg-app-primary rounded-lg">
+                                <FaTrophy className="w-4 h-4 text-white" />
+                            </div>
+                            <h1 className="text-xl md:text-2xl font-semibold text-app-text-base">
+                                {match.name}
+                            </h1>
+                        </div>
+                        <div className="flex items-center space-x-3 text-xs text-app-text-muted">
+                            <div className="flex items-center space-x-1">
+                                <FaMapMarkerAlt className="w-3 h-3" />
+                                <span>{match.venue}</span>
+                            </div>
+                            <div className="flex items-center space-x-1">
+                                <FaRegCalendarAlt className="w-3 h-3" />
+                                <span>{new Date(match.date).toLocaleDateString('en-US', { 
+                                    weekday: 'long', 
+                                    year: 'numeric', 
+                                    month: 'long', 
+                                    day: 'numeric' 
+                                })}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    {/* Status Badge */}
+                    <div className={`mt-3 lg:mt-0 px-3 py-1.5 rounded-full text-xs font-semibold shadow-md ${getStatusStyle(match.status)}`}>
+                        <div className="flex items-center space-x-1">
+                            {match.status.toLowerCase().includes('live') && (
+                                <RiLiveLine className="w-3 h-3 animate-pulse" />
+                            )}
+                            <span>{match.status}</span>
+                        </div>
+                    </div>
                 </div>
-            </div>
 
-            <div className="space-y-4">
-                {/* Team 1 Display */}
-                {team1Name && (
-                    <div className="flex justify-between items-center">
-                        <div className="flex items-center space-x-3">
-                            <img src={team1Info?.img || '/default-logo.png'} alt={team1Name} className="w-10 h-10 md:w-12 md:h-12 object-cover rounded-full bg-app-surface-darker" />
-                            <span className="text-xl font-semibold">{team1Name}</span>
+                {/* Teams Section */}
+                <div className="space-y-3">
+                    {/* Team 1 */}
+                    {team1Name && (
+                        <div className="bg-app-card-bg rounded-lg p-3 border border-app-border hover:border-app-primary/50 transition-colors">
+                            <div className="flex justify-between items-center">
+                                <div className="flex items-center space-x-3">
+                                    <div className="relative">
+                                        <img 
+                                            src={team1Info?.img || '/default-logo.png'} 
+                                            alt={team1Name} 
+                                            className="w-12 h-12 md:w-14 md:h-14 object-cover rounded-full border-2 border-white shadow-md" 
+                                        />
+                                        <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-app-primary rounded-full flex items-center justify-center">
+                                            <FaTrophy className="w-2 h-2 text-white" />
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <h3 className="text-lg md:text-xl font-semibold text-app-text-base">{team1Name}</h3>
+                                        <p className="text-xs text-app-text-muted">First Innings</p>
+                                    </div>
+                                </div>
+                                {team1Score && (
+                                    <div className="text-right">
+                                        <div className="text-xl md:text-2xl font-bold text-app-primary">
+                                            {team1Score.r}/{team1Score.w}
+                                        </div>
+                                        <div className="text-xs text-app-text-muted">
+                                            {team1Score.o} overs
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
                         </div>
-                        {team1Score && (
-                            <span className="text-xl font-bold">{team1Score.r}-{team1Score.w} ({team1Score.o} ov)</span>
-                        )}
-                    </div>
-                )}
+                    )}
 
-                {/* Team 2 Display */}
-                {team2Name && (
-                    <div className="flex justify-between items-center">
-                        <div className="flex items-center space-x-3">
-                            <img src={team2Info?.img || '/default-logo.png'} alt={team2Name} className="w-10 h-10 md:w-12 md:h-12 object-cover rounded-full bg-app-surface-darker" />
-                            <span className="text-xl font-semibold">{team2Name}</span>
+                    {/* VS Separator */}
+                    <div className="flex items-center justify-center">
+                        <div className="w-8 h-8 bg-app-primary rounded-full flex items-center justify-center text-white font-semibold text-xs shadow-md">
+                            VS
                         </div>
-                        {team2Score && (
-                            <span className="text-xl font-bold">{team2Score.r}-{team2Score.w} ({team2Score.o} ov)</span>
-                        )}
                     </div>
-                )}
-            </div>
 
-            <div className="border-t border-app-border mt-5 pt-3 flex flex-col sm:flex-row sm:justify-between text-app-text-muted text-sm">
-                <div className="flex items-center mb-2 sm:mb-0"><FaMapMarkerAlt className="mr-2" /><span>{match.venue}</span></div>
-                <div className="flex items-center"><FaRegCalendarAlt className="mr-2" /><span>{new Date(match.date).toLocaleDateString('en-US', { dateStyle: 'full' })}</span></div>
+                    {/* Team 2 */}
+                    {team2Name && (
+                        <div className="bg-app-card-bg rounded-lg p-3 border border-app-border hover:border-app-primary/50 transition-colors">
+                            <div className="flex justify-between items-center">
+                                <div className="flex items-center space-x-3">
+                                    <div className="relative">
+                                        <img 
+                                            src={team2Info?.img || '/default-logo.png'} 
+                                            alt={team2Name} 
+                                            className="w-12 h-12 md:w-14 md:h-14 object-cover rounded-full border-2 border-white shadow-md" 
+                                        />
+                                        <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-app-secondary rounded-full flex items-center justify-center">
+                                            <FaTrophy className="w-2 h-2 text-white" />
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <h3 className="text-lg md:text-xl font-semibold text-app-text-base">{team2Name}</h3>
+                                        <p className="text-xs text-app-text-muted">Second Innings</p>
+                                    </div>
+                                </div>
+                                {team2Score && (
+                                    <div className="text-right">
+                                        <div className="text-xl md:text-2xl font-bold text-app-secondary">
+                                            {team2Score.r}/{team2Score.w}
+                                        </div>
+                                        <div className="text-xs text-app-text-muted">
+                                            {team2Score.o} overs
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
+                </div>
+
+                {/* Match Progress Bar */}
+                <div className="mt-4 p-3 bg-app-card-bg rounded-lg border border-app-border">
+                    <div className="flex items-center justify-between mb-2">
+                        <span className="text-xs font-semibold text-app-text-base">Match Progress</span>
+                        <span className="text-xs text-app-text-muted">Live Updates</span>
+                    </div>
+                    <div className="w-full bg-app-border rounded-full h-1.5">
+                        <div className="bg-app-primary h-1.5 rounded-full animate-pulse" style={{ width: '75%' }}></div>
+                    </div>
+                </div>
             </div>
         </div>
     );

@@ -1,4 +1,4 @@
-import { ApiMatch, FullMatchData, SeriesDetailData } from '@/types/cricket';
+import { ApiMatch, SeriesDetailData, PlayerInfo } from '@/types/cricket';
 
 const API_KEY = process.env.CRICKETDATA_API_KEY;
 const BASE_URL = process.env.CRICKETDATA_API_BASE_URL;
@@ -64,4 +64,60 @@ export async function getSeriesList() {
  */
 export async function getSeriesInfo(seriesId: string) {
     return fetchFromApi<SeriesDetailData>('series_info', `id=${seriesId}`);
+}
+
+/**
+ * Fetch player information by player ID
+ */
+export async function getPlayerInfo(playerId: string): Promise<PlayerInfo | null> {
+  try {
+    const response = await fetch(
+      `https://api.cricapi.com/v1/players_info?apikey=64bbf002-dd59-4ec4-8974-e5bd9e010e4d&offset=0&id=${playerId}`,
+      { cache: 'no-store' }
+    );
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    
+    if (data.status === 'success' && data.data) {
+      return data.data as PlayerInfo;
+    } else {
+      console.error('API Error:', data);
+      return null;
+    }
+  } catch (error) {
+    console.error('Error fetching player info:', error);
+    return null;
+  }
+}
+
+/**
+ * Fetch all players list
+ */
+export async function getAllPlayers(offset: number = 0): Promise<any> {
+  try {
+    const response = await fetch(
+      `https://api.cricapi.com/v1/players?apikey=64bbf002-dd59-4ec4-8974-e5bd9e010e4d&offset=${offset}`,
+      { cache: 'no-store' }
+    );
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    
+    if (data.status === 'success' && data.data) {
+      return data;
+    } else {
+      console.error('API Error:', data);
+      return null;
+    }
+  } catch (error) {
+    console.error('Error fetching players:', error);
+    return null;
+  }
 }

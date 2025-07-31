@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { RiTrophyLine, RiCalendarCheckLine, RiShieldFlashLine, RiGlobalLine } from 'react-icons/ri';
+import { RiCalendarCheckLine, RiShieldFlashLine, RiGlobalLine } from 'react-icons/ri';
 import { SeriesPreviewProps } from '@/types/cricket'; // Assuming types are here
 
 // SeriesPreviewProps should be imported or defined as before
@@ -11,7 +11,7 @@ const SeriesPreviewCard: React.FC<SeriesPreviewProps> = ({
   year,
   format,
   country,
-  logoUrl,
+  _logoUrl,
   status,
   matchCount,
   teamCount

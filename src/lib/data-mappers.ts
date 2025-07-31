@@ -1,4 +1,4 @@
-import { SeriesPreviewProps, MatchPreviewProps, TeamInfo, ApiMatch, SeriesDetailData } from '@/types/cricket';
+import { SeriesPreviewProps, MatchPreviewProps, TeamInfo, ApiMatch, SeriesDetailData, PlayerStats, BowlingStats, PlayerStat } from '@/types/cricket';
 
 /**
  * Maps the raw series data from the 'series_list' API endpoint 
@@ -101,4 +101,61 @@ export function mapApiMatchToMatchPreview(match: ApiMatch): MatchPreviewProps {
         result: match.status,
         seriesName: match.name,
     };
+}
+
+/**
+ * Process player stats from API response
+ */
+export function processPlayerStats(stats: PlayerStat[], format: string, type: 'batting' | 'bowling'): PlayerStats | BowlingStats {
+  // Filter stats for the specific format and type
+  const formatStats = stats.filter(stat => 
+    stat.fn === type && 
+    stat.matchtype.toLowerCase() === format.toLowerCase()
+  );
+
+  // Create a map of stat names to values
+  const statsMap = new Map<string, string>();
+  formatStats.forEach(stat => {
+    // Clean up the stat name by removing extra spaces and normalizing
+    const cleanStat = stat.stat.trim().replace(/\s+/g, '');
+    statsMap.set(cleanStat, stat.value.trim());
+  });
+
+  if (type === 'batting') {
+    return {
+      matches: statsMap.get('m') || '0',
+      innings: statsMap.get('inn') || '0',
+      runs: statsMap.get('runs') || '0',
+      highestScore: statsMap.get('hs') || '0',
+      notOut: statsMap.get('no') || '0',
+      strikeRate: statsMap.get('sr') || '0',
+      fifties: statsMap.get('50s') || statsMap.get('50') || '0',
+      hundreds: statsMap.get('100s') || statsMap.get('100') || '0',
+      twoHundreds: statsMap.get('200s') || statsMap.get('200') || '0',
+      average: statsMap.get('avg') || '0',
+      balls: statsMap.get('bf') || '0',
+      threeHundreds: statsMap.get('300s') || statsMap.get('300') || '0',
+      fours: statsMap.get('4s') || '0',
+      sixes: statsMap.get('6s') || '0',
+      ducks: statsMap.get('ducks') || '0'
+    } as PlayerStats;
+  } else {
+    return {
+      matches: statsMap.get('m') || '0',
+      innings: statsMap.get('inn') || '0',
+      wickets: statsMap.get('wkts') || '0',
+      balls: statsMap.get('b') || '0',
+      runs: statsMap.get('runs') || '0',
+      overs: statsMap.get('overs') || '0',
+      economy: statsMap.get('econ') || '0',
+      maidens: statsMap.get('maidens') || '0',
+      bbi: statsMap.get('bbi') || '0/0',
+      fourWickets: statsMap.get('4w') || '0',
+      fiveWickets: statsMap.get('5w') || '0',
+      tenWickets: statsMap.get('10w') || '0',
+      hattricks: statsMap.get('hattricks') || '0',
+      average: statsMap.get('avg') || '0',
+      strikeRate: statsMap.get('sr') || '0'
+    } as BowlingStats;
+  }
 }

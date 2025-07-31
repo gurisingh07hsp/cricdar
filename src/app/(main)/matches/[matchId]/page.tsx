@@ -13,18 +13,24 @@ export default async function MatchDetailPage({ params }: { params: { matchId: s
   }
 
   return (
-    <div className="container mx-auto px-2 sm:px-4 py-8">
-      {/* MatchHeader is already correct from our last fix */}
-      <MatchHeader match={matchInfo} />
-
-      <div className="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2">
-          {/* FIX: Pass the 'score' array to the ScorecardDisplay component */}
-          <ScorecardDisplay score={matchInfo.score} />
+    <div className="min-h-screen bg-app-bg">
+      <div className="container mx-auto px-4 sm:px-6 py-8">
+        {/* Match Header */}
+        <div className="mb-8">
+          <MatchHeader match={matchInfo} />
         </div>
-        <div className="lg:col-span-1">
-          {/* MatchInfoTab is also correct */}
-          <MatchInfoTab match={matchInfo} />
+
+        {/* Main Content Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Scorecard Section */}
+          <div className="lg:col-span-2">
+            <ScorecardDisplay score={matchInfo.score} />
+          </div>
+          
+          {/* Match Info Section */}
+          <div className="lg:col-span-1">
+            <MatchInfoTab match={matchInfo} />
+          </div>
         </div>
       </div>
     </div>
