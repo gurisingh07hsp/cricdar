@@ -1,7 +1,7 @@
 import { ApiMatch, SeriesDetailData, PlayerInfo } from '@/types/cricket';
 
-const API_KEY = process.env.CRICKETDATA_API_KEY;
-const BASE_URL = process.env.CRICKETDATA_API_BASE_URL;
+const API_KEY = process.env.NEXT_PUBLIC_CRICKETDATA_API_KEY;
+const BASE_URL = process.env.NEXT_PUBLIC_CRICKETDATA_API_BASE_URL;
 
 async function fetchFromApi<T>(endpoint: string, params: string = ''): Promise<T | null> {
     if (!API_KEY || !BASE_URL) {
