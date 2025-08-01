@@ -14,8 +14,10 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [theme, setTheme] = useState<Theme>('light'); // Default to light
+    const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
+        setMounted(true);
         // Check localStorage for saved theme, then system preference
         const savedTheme = localStorage.getItem('cricdar-theme') as Theme | null;
         const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -28,13 +30,15 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }, []);
 
     useEffect(() => {
+        if (!mounted) return; // Don't run on server-side
+        
         if (theme === 'dark') {
             document.documentElement.classList.add('dark');
         } else {
             document.documentElement.classList.remove('dark');
         }
         localStorage.setItem('cricdar-theme', theme);
-    }, [theme]);
+    }, [theme, mounted]);
 
     const toggleTheme = () => {
         setTheme(prevTheme => (prevTheme === 'light' ? 'dark' : 'light'));

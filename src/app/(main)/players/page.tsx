@@ -2,7 +2,7 @@
 
 import { getAllPlayers } from '@/lib/cricketdata-api';
 import { Player } from '@/types/cricket';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { 
   RiSearchLine, 
@@ -25,18 +25,7 @@ export default function PlayersPage() {
   // Get unique countries for filter
   const countries = Array.from(new Set(players.map(player => player.country))).sort();
 
-  // Filter players based on search and country
-  const filteredPlayers = players.filter(player => {
-    const matchesSearch = player.name.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCountry = !selectedCountry || player.country === selectedCountry;
-    return matchesSearch && matchesCountry;
-  });
-
-  useEffect(() => {
-    fetchPlayers();
-  }, [currentPage, fetchPlayers]);
-
-  const fetchPlayers = async () => {
+  const fetchPlayers = useCallback(async () => {
     try {
       setLoading(true);
       const response = await getAllPlayers(currentPage * 25); // 25 players per page
@@ -50,7 +39,18 @@ export default function PlayersPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentPage]);
+
+  // Filter players based on search and country
+  const filteredPlayers = players.filter(player => {
+    const matchesSearch = player.name.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCountry = !selectedCountry || player.country === selectedCountry;
+    return matchesSearch && matchesCountry;
+  });
+
+  useEffect(() => {
+    fetchPlayers();
+  }, [fetchPlayers]);
 
   const loadMorePlayers = () => {
     setCurrentPage(prev => prev + 1);
