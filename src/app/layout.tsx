@@ -7,6 +7,11 @@ import Footer from "@/components/common/Footer";
 import { ThemeProvider } from "@/components/common/ThemeSwitcher";
 import { Suspense } from "react";
 
+// Client-side wrapper to prevent hydration issues
+const ClientThemeProvider = ({ children }: { children: React.ReactNode }) => {
+	return <ThemeProvider>{children}</ThemeProvider>;
+};
+
 const inter = Inter({
 	subsets: ["latin"],
 	variable: "--font-sans",
@@ -57,7 +62,7 @@ export default function RootLayout({
 				<link rel="icon" href="/favicon.png" />
 			</head>
 			<body>
-				<ThemeProvider>
+				<ClientThemeProvider>
 					<div className="flex flex-col min-h-screen bg-app-bg text-app-text-base transition-colors duration-300">
 						<Suspense fallback={<NavbarFallback />}>
 							{/* Wrap Navbar with Suspense */}
@@ -66,7 +71,7 @@ export default function RootLayout({
 						<main className="flex-grow w-full">{children}</main>
 						<Footer />
 					</div>
-				</ThemeProvider>
+				</ClientThemeProvider>
 			</body>
 		</html>
 	);

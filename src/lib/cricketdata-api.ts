@@ -3,7 +3,7 @@ import { ApiMatch, SeriesDetailData, PlayerInfo } from '@/types/cricket';
 const API_KEY = process.env.NEXT_PUBLIC_CRICKETDATA_API_KEY;
 const BASE_URL = process.env.NEXT_PUBLIC_CRICKETDATA_API_BASE_URL;
 
-async function fetchFromApi<T>(endpoint: string, params: string = ''): Promise<T | null> {
+async function fetchFromApi<T>(endpoint: string, params: string = '', cacheStrategy: RequestCache = 'no-store'): Promise<T | null> {
     if (!API_KEY || !BASE_URL) {
         console.error("CRITICAL: API credentials are not configured in .env.local");
         return null;
@@ -15,7 +15,7 @@ async function fetchFromApi<T>(endpoint: string, params: string = ''): Promise<T
 
     try {
         const response = await fetch(url, {
-            cache: 'no-store'
+            cache: cacheStrategy
         });
 
         if (!response.ok) {
@@ -37,7 +37,7 @@ async function fetchFromApi<T>(endpoint: string, params: string = ''): Promise<T
  * The API endpoint for all matches is 'matches'.
  */
 export async function getAllMatches() {
-    return fetchFromApi<ApiMatch[]>('currentMatches');
+    return fetchFromApi<ApiMatch[]>('currentMatches', '', 'no-store');
 }
 
 /**
@@ -54,7 +54,7 @@ export async function getMatchInfo(matchId: string) {
  * The API endpoint is 'series'.
  */
 export async function getSeriesList() {
-    return fetchFromApi<SeriesDetailData[]>('series');
+    return fetchFromApi<SeriesDetailData[]>('series', '', 'no-store');
 }
 
 /**
