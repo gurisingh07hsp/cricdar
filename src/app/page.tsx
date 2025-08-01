@@ -95,11 +95,22 @@ const mockTopTeams = [
   { id: '4', name: 'South Africa', flag: '🇿🇦', rating: 110 }
 ];
 
+// Force dynamic rendering for this page since it fetches live data
+export const dynamic = 'force-dynamic';
+
 export default async function HomePage() {
-  const [apiMatches, apiSeries] = await Promise.all([
-    getAllMatches(),
-    getSeriesList()
-  ]);
+  let apiMatches = null;
+  let apiSeries = null;
+
+  try {
+    [apiMatches, apiSeries] = await Promise.all([
+      getAllMatches(),
+      getSeriesList()
+    ]);
+  } catch (error) {
+    console.error('Error fetching data:', error);
+    // Continue with empty data - the page will show mock data or empty states
+  }
 
   const allMatches = (apiMatches || []).map(mapApiMatchToMatchPreview);
   const liveMatches = allMatches.filter(m => m.status === 'Live').slice(0, 6);
