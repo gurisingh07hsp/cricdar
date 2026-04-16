@@ -14,9 +14,15 @@ async function fetchFromApi<T>(endpoint: string, params: string = '', cacheStrat
     const url = `${BASE_URL}/${endpoint}?apikey=${API_KEY}${params ? '&' + params : ''}`;
 
     try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+
         const response = await fetch(url, {
-            cache: cacheStrategy
+            cache: cacheStrategy,
+            signal: controller.signal
         });
+
+        clearTimeout(timeoutId);
 
         if (!response.ok) {
             const errorData = await response.json();
