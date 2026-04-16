@@ -73,7 +73,7 @@ export async function getSeriesInfo(seriesId: string) {
 export async function getPlayerInfo(playerId: string): Promise<PlayerInfo | null> {
   try {
     const response = await fetch(
-      `https://api.cricapi.com/v1/players_info?apikey=64bbf002-dd59-4ec4-8974-e5bd9e010e4d&offset=0&id=${playerId}`,
+      `https://api.cricapi.com/v1/players_info?apikey=${API_KEY}&offset=0&id=${playerId}`,
       { cache: 'no-store' }
     );
     
@@ -101,7 +101,7 @@ export async function getPlayerInfo(playerId: string): Promise<PlayerInfo | null
 export async function getAllPlayers(offset: number = 0): Promise<any> {
   try {
     const response = await fetch(
-      `https://api.cricapi.com/v1/players?apikey=64bbf002-dd59-4ec4-8974-e5bd9e010e4d&offset=${offset}`,
+      `https://api.cricapi.com/v1/players?apikey=${API_KEY}&offset=${offset}`,
       { cache: 'no-store' }
     );
     
