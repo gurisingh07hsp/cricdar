@@ -4,7 +4,7 @@ import MatchHeader from './_components/MatchHeader';
 import MatchInfoTab from './_components/MatchInfoTab';
 import ScorecardDisplay from './_components/ScorecardDisplay';
 
-export default async function MatchDetailPage({ params }: { params: { matchId: string } }) {
+export default async function MatchDetailPage({ params }: { params: Promise<{ matchId: string }> }) {
   const paramsObj = await params;
   const matchInfo = await getMatchInfo(paramsObj.matchId);
 

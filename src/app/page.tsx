@@ -79,13 +79,13 @@ const mockRankings = {
 };
 
 // Mock current series data
-const mockCurrentSeries = [
-  { id: '1', name: 'India tour of England', status: 'ongoing' },
-  { id: '2', name: 'World Championship of Legends', status: 'ongoing' },
-  { id: '3', name: 'Australia tour of West Indies', status: 'ongoing' },
-  { id: '4', name: 'New Zealand tour of Zimbabwe', status: 'ongoing' },
-  { id: '5', name: 'Pakistan tour of West Indies', status: 'ongoing' }
-];
+// const mockCurrentSeries = [
+//   { id: '1', name: 'India tour of England', status: 'ongoing' },
+//   { id: '2', name: 'World Championship of Legends', status: 'ongoing' },
+//   { id: '3', name: 'Australia tour of West Indies', status: 'ongoing' },
+//   { id: '4', name: 'New Zealand tour of Zimbabwe', status: 'ongoing' },
+//   { id: '5', name: 'Pakistan tour of West Indies', status: 'ongoing' }
+// ];
 
 // Mock top teams data
 const mockTopTeams = [

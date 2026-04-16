@@ -7,7 +7,7 @@ import { mapApiMatchToMatchPreview } from '@/lib/data-mappers';
 // FIX: Add this line to force the page to be dynamic and not cached.
 export const dynamic = 'force-dynamic';
 
-export default async function MatchesPage({ searchParams }: { searchParams?: { status?: string } }) {
+export default async function MatchesPage({ searchParams }: { searchParams?: Promise<{ status?: string }> }) {
   const params = await searchParams;
   const currentStatus = params?.status?.toLowerCase() || 'all';
   const apiMatches = await getAllMatches();
