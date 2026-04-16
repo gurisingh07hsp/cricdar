@@ -25,6 +25,7 @@ async function fetchFromApi<T>(endpoint: string, params: string = '', cacheStrat
         }
 
         const result = await response.json();
+        console.log(`API Response for ${endpoint}:`, result);
         return (result.data as T) || null;
     } catch (error) {
         console.error(`Failed to fetch from API endpoint: ${endpoint}`, error);

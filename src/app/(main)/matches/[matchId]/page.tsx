@@ -24,7 +24,7 @@ export default async function MatchDetailPage({ params }: { params: { matchId: s
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Scorecard Section */}
           <div className="lg:col-span-2">
-            <ScorecardDisplay score={matchInfo.score} />
+            <ScorecardDisplay score={matchInfo.score} matchtype={matchInfo.matchType || 'N/A'} />
           </div>
           
           {/* Match Info Section */}

@@ -151,15 +151,15 @@ const MatchHeader = ({ match }: { match: ApiMatch }) => {
                 </div>
 
                 {/* Match Progress Bar */}
-                <div className="mt-4 p-3 bg-app-card-bg rounded-lg border border-app-border">
+                {/* <div className="mt-4 p-3 bg-app-card-bg rounded-lg border border-app-border">
                     <div className="flex items-center justify-between mb-2">
                         <span className="text-xs font-semibold text-app-text-base">Match Progress</span>
                         <span className="text-xs text-app-text-muted">Live Updates</span>
                     </div>
                     <div className="w-full bg-app-border rounded-full h-1.5">
-                        <div className="bg-app-primary h-1.5 rounded-full animate-pulse" style={{ width: '75%' }}></div>
+                        <div className="bg-app-primary h-1.5 rounded-full animate-pulse"  style={{ width: `${(parseFloat(String(inning.o)) / 20) * 100}%` }}></div>
                     </div>
-                </div>
+                </div> */}
             </div>
         </div>
     );

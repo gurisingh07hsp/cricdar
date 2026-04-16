@@ -6,7 +6,7 @@ const MatchInfoTab: React.FC<{ match: ApiMatch }> = ({ match }) => {
     const infoItems = [
         { 
             label: 'Match Type', 
-            value: match.matchType.toUpperCase(),
+            value: match.matchType || 'N/A',
             icon: RiTrophyLine,
             color: 'text-app-primary'
         },
@@ -62,7 +62,7 @@ const MatchInfoTab: React.FC<{ match: ApiMatch }> = ({ match }) => {
                                         </div>
                                         <div>
                                             <h4 className="font-semibold text-app-text-base text-sm">{item.label}</h4>
-                                            <p className="text-xs text-app-text-muted">Match detail</p>
+                                            <p className="text-xs text-app-text-muted">Match</p>
                                         </div>
                                     </div>
                                     <div className="text-right">
@@ -94,10 +94,6 @@ const MatchInfoTab: React.FC<{ match: ApiMatch }> = ({ match }) => {
                                     minute: '2-digit' 
                                 })}
                             </span>
-                        </div>
-                        <div className="flex justify-between">
-                            <span className="text-app-text-muted">Duration</span>
-                            <span className="text-app-text-base font-medium">5 Days (Test)</span>
                         </div>
                         <div className="flex justify-between">
                             <span className="text-app-text-muted">Format</span>

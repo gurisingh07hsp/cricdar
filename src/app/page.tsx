@@ -117,7 +117,7 @@ export default async function HomePage() {
   const _upcomingMatches = allMatches.filter(m => m.status === 'Upcoming').slice(0, 4);
 
   const allSeries = (apiSeries || []).map(mapApiSeriesToSeriesPreview);
-  const _featuredSeries = allSeries.slice(0, 3);
+  const _featuredSeries = allSeries.slice(0, 5);
   const moreSeriesToExplore = allSeries.slice(0, 4);
 
   const _scrollContainerClasses = "flex overflow-x-auto space-x-4 pb-4 scrollbar-thin scrollbar-thumb-app-border scrollbar-track-transparent";
@@ -140,12 +140,14 @@ export default async function HomePage() {
                 </div>
               </div>
               <div className="space-y-3">
-                {mockCurrentSeries.map((series) => (
+                {_featuredSeries.map((series) => (
                   <div key={series.id} className="p-3 bg-app-bg rounded-lg border border-app-border hover:border-app-primary/50 transition-colors">
                     <h4 className="text-sm font-medium text-app-text-base">{series.name}</h4>
                     <div className="flex items-center justify-between mt-2">
                       <span className="text-xs text-app-text-muted">{series.status}</span>
-                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                      {series.status === 'Live' && (
+                        <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                      )}
                     </div>
                   </div>
                 ))}

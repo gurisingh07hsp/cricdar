@@ -3,8 +3,20 @@ import React from 'react';
 import { RiFileList3Line, RiBarChartLine, RiTimeLine, RiTrophyLine } from 'react-icons/ri';
 
 // The component now accepts the 'score' summary array
-const ScorecardDisplay: React.FC<{ score?: Score[] }> = ({ score }) => {
+const ScorecardDisplay: React.FC<{ score?: Score[]; matchtype: string }> = ({ score, matchtype }) => {
     // Show a fallback message if no score summary is available
+
+    const totalover = (matchtype: string) => {
+        switch (matchtype) {
+            case 't20':
+                return 20;
+            case 'odi':
+                return 50;
+            default:
+                return 90;
+        }
+    };
+
     if (!score || score.length === 0) {
         return (
             <div className="bg-app-surface rounded-lg shadow-lg border border-app-border p-6 text-center">
@@ -103,12 +115,12 @@ const ScorecardDisplay: React.FC<{ score?: Score[] }> = ({ score }) => {
                                 <div className="mt-3">
                                     <div className="flex items-center justify-between text-xs text-app-text-muted mb-1">
                                         <span>Overs Progress</span>
-                                        <span>{inning.o} / 50</span>
+                                        <span>{inning.o} / {totalover(matchtype)}</span>
                                     </div>
                                     <div className="w-full bg-app-border rounded-full h-1.5">
                                         <div 
                                             className="bg-app-primary h-1.5 rounded-full transition-all duration-500" 
-                                            style={{ width: `${(parseFloat(String(inning.o)) / 50) * 100}%` }}
+                                            style={{ width: `${(parseFloat(String(inning.o)) / totalover(matchtype)) * 100}%` }}
                                         ></div>
                                     </div>
                                 </div>
