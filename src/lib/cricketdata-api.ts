@@ -8,35 +8,36 @@ async function fetchFromApi<T>(endpoint: string, params: string = '', cacheStrat
         console.error("CRITICAL: API credentials are not configured in .env.local");
         return null;
     }
+    return null;
 
     // Correctly construct the URL with the API key as the first parameter
     // and append any other params.
-    const url = `${BASE_URL}/${endpoint}?apikey=${API_KEY}${params ? '&' + params : ''}`;
+    // const url = `${BASE_URL}/${endpoint}?apikey=${API_KEY}${params ? '&' + params : ''}`;
 
-    try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+    // try {
+    //     const controller = new AbortController();
+    //     const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
 
-        const response = await fetch(url, {
-            cache: cacheStrategy,
-            signal: controller.signal
-        });
+    //     const response = await fetch(url, {
+    //         cache: cacheStrategy,
+    //         signal: controller.signal
+    //     });
 
-        clearTimeout(timeoutId);
+    //     clearTimeout(timeoutId);
 
-        if (!response.ok) {
-            const errorData = await response.json();
-            console.error(`API Error for endpoint ${endpoint}:`, errorData);
-            return null;
-        }
+    //     if (!response.ok) {
+    //         const errorData = await response.json();
+    //         console.error(`API Error for endpoint ${endpoint}:`, errorData);
+    //         return null;
+    //     }
 
-        const result = await response.json();
-        console.log(`API Response for ${endpoint}:`, result);
-        return (result.data as T) || null;
-    } catch (error) {
-        console.error(`Failed to fetch from API endpoint: ${endpoint}`, error);
-        return null;
-    }
+    //     const result = await response.json();
+    //     console.log(`API Response for ${endpoint}:`, result);
+    //     return (result.data as T) || null;
+    // } catch (error) {
+    //     console.error(`Failed to fetch from API endpoint: ${endpoint}`, error);
+    //     return null;
+    // }
 }
 
 /**
