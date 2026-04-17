@@ -225,7 +225,7 @@ export default function Footer() {
                                 Get the latest cricket news, match updates, and exclusive content delivered to your inbox.
                             </p>
                         </div>
-                        <div className="flex space-x-3">
+                        <div className="flex md:flex-row flex-col gap-y-2 space-x-3">
                             <input
                                 type="email"
                                 placeholder="Enter your email"
