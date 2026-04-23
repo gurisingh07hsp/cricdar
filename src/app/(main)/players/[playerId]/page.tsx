@@ -30,6 +30,7 @@ export default function PlayerStatsPage({ params }: PlayerStatsPageProps) {
         const paramsObj = await params;
         const data = await getPlayerInfo(paramsObj.playerId);
         if (data) {
+          console.log("Player Data : ", data);
           setPlayerInfo(data);
         }
       } catch (error) {

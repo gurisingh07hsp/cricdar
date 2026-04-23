@@ -40,11 +40,11 @@ const MatchHeader = ({ match }: { match: ApiMatch }) => {
                             <div className="p-1.5 bg-app-primary rounded-lg">
                                 <FaTrophy className="w-4 h-4 text-white" />
                             </div>
-                            <h1 className="text-xl md:text-2xl font-semibold text-app-text-base">
+                            <h1 className="text-xs md:text-2xl font-semibold text-app-text-base">
                                 {match.name}
                             </h1>
                         </div>
-                        <div className="flex items-center space-x-3 text-xs text-app-text-muted">
+                        <div className="flex flex-col gap-2 text-xs text-app-text-muted">
                             <div className="flex items-center space-x-1">
                                 <FaMapMarkerAlt className="w-3 h-3" />
                                 <span>{match.venue}</span>
@@ -62,8 +62,8 @@ const MatchHeader = ({ match }: { match: ApiMatch }) => {
                     </div>
                     
                     {/* Status Badge */}
-                    <div className={`mt-3 lg:mt-0 px-3 py-1.5 rounded-full text-xs font-semibold shadow-md ${getStatusStyle(match.status)}`}>
-                        <div className="flex items-center space-x-1">
+                    <div className={`mt-3 lg:mt-0 px-3 py-1.5 rounded-2xl  lg:rounded-full text-xs font-semibold shadow-md ${getStatusStyle(match.status)}`}>
+                        <div className="flex text-xs items-center space-x-1">
                             {match.status.toLowerCase().includes('live') && (
                                 <RiLiveLine className="w-3 h-3 animate-pulse" />
                             )}

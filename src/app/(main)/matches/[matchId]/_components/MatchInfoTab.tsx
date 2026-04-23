@@ -109,7 +109,7 @@ const MatchInfoTab: React.FC<{ match: ApiMatch }> = ({ match }) => {
                         <h4 className="font-semibold text-app-text-base text-sm">Venue Details</h4>
                     </div>
                     <div className="space-y-1 text-xs">
-                        <div className="flex justify-between">
+                        <div className="flex flex-col md:flex-row justify-between">
                             <span className="text-app-text-muted">Ground</span>
                             <span className="text-app-text-base font-medium">{match.venue}</span>
                         </div>

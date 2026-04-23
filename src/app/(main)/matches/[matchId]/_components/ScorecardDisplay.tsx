@@ -56,7 +56,7 @@ const ScorecardDisplay: React.FC<{ score?: Score[]; matchtype: string }> = ({ sc
                             className="bg-app-card-bg rounded-lg border border-app-border hover:border-app-primary/50 transition-colors"
                         >
                             <div className="p-4">
-                                <div className="flex items-center justify-between mb-3">
+                                <div className="flex flex-col md:flex-row md:items-center gap-2 justify-between mb-3">
                                     <div className="flex items-center space-x-2">
                                         <div className="p-1.5 rounded-lg bg-app-primary text-white">
                                             <RiTrophyLine className="w-4 h-4" />
@@ -72,13 +72,13 @@ const ScorecardDisplay: React.FC<{ score?: Score[]; matchtype: string }> = ({ sc
                                     </div>
                                     
                                     {/* Status Badge */}
-                                    <div className="px-2 py-1 rounded-full text-xs font-semibold bg-app-primary/10 text-app-primary">
+                                    <div className="px-2 py-1 text-center rounded-full text-xs font-semibold bg-app-primary/10 text-app-primary">
                                         {isFirstInnings ? 'Completed' : 'In Progress'}
                                     </div>
                                 </div>
 
                                 {/* Score Display */}
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                <div className="grid grid-cols-3 gap-3">
                                     <div className="text-center">
                                         <div className="text-2xl md:text-3xl font-bold text-app-primary">
                                             {inning.r}

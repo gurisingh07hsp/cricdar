@@ -1,5 +1,5 @@
 "use client";
-import React from 'react';
+import React, { useEffect } from 'react';
 import Link from 'next/link';
 import { RiArrowLeftSLine } from 'react-icons/ri';
 
@@ -7,6 +7,7 @@ import { RiArrowLeftSLine } from 'react-icons/ri';
 const getPages = () => {
   if (typeof window !== 'undefined') {
     const stored = localStorage.getItem('pages');
+    console.log('stored : ', stored);
     if (stored) {
       return JSON.parse(stored);
     }
@@ -18,14 +19,16 @@ interface PageProps {
   params: { slug: string };
 }
 
-export default function PageComponent({ params }: PageProps) {
+export default async function PageComponent({ params }: {params?: Promise<{ slug?: string }>}) {
   const [page, setPage] = React.useState<any>(null);
+  const props = await params;
+  console.log("Props : ", props);
 
-  React.useEffect(() => {
-    const pages = getPages();
-    const foundPage = pages.find((p: any) => p.slug === params.slug);
-    setPage(foundPage);
-  }, [params.slug]);
+  // useEffect(() => {
+  //   const pages = getPages();
+  //   const foundPage = pages.find((p: any) => p.slug === props?.slug);
+  //   setPage(foundPage);
+  // }, [props?.slug]);
 
   if (!page) {
     return (

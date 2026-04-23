@@ -108,14 +108,14 @@ export function mapApiMatchToMatchPreview(match: ApiMatch): MatchPreviewProps {
  */
 export function processPlayerStats(stats: PlayerStat[], format: string, type: 'batting' | 'bowling'): PlayerStats | BowlingStats {
   // Filter stats for the specific format and type
-  const formatStats = stats.filter(stat => 
+  const formatStats = stats?.filter(stat => 
     stat.fn === type && 
     stat.matchtype.toLowerCase() === format.toLowerCase()
   );
 
   // Create a map of stat names to values
   const statsMap = new Map<string, string>();
-  formatStats.forEach(stat => {
+  formatStats?.forEach(stat => {
     // Clean up the stat name by removing extra spaces and normalizing
     const cleanStat = stat.stat.trim().replace(/\s+/g, '');
     statsMap.set(cleanStat, stat.value.trim());
