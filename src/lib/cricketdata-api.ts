@@ -43,10 +43,20 @@ async function fetchCricApi<T>(
     });
 
     clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      console.error(`CricAPI HTTP ${response.status} for ${endpoint}`);
+      return null;
+    }
+
     const result = (await response.json()) as CricApiResponse<T>;
 
-    if (result.status !== 'success' || !result.data) {
+    if (result.status !== 'success') {
       console.error(`CricAPI error (${endpoint}):`, result.reason ?? result.status);
+      return null;
+    }
+
+    if (result.data === undefined || result.data === null) {
       return null;
     }
 
@@ -117,8 +127,48 @@ export async function getFullMatchDetail(
   return { match, scorecard, commentary, cricScoreSnap };
 }
 
-export async function getSeriesList() {
-  return fetchCricApi<SeriesDetailData[]>('series', '', 'no-store');
+function deriveSeriesFromMatches(matches: CricScoreMatch[]): SeriesDetailData[] {
+  const byName = new Map<string, SeriesDetailData>();
+
+  for (const m of matches) {
+    const existing = byName.get(m.series);
+    if (existing) {
+      existing.matches += 1;
+      if (m.matchType === 't20') existing.t20 += 1;
+      if (m.matchType === 'odi') existing.odi += 1;
+      if (m.matchType === 'test') existing.test += 1;
+      continue;
+    }
+
+    byName.set(m.series, {
+      id: `series-${m.series.slice(0, 40).replace(/\W+/g, '-').toLowerCase()}`,
+      name: m.series,
+      startDate: m.dateTimeGMT?.split('T')[0] ?? new Date().toISOString().split('T')[0],
+      endDate: m.dateTimeGMT?.split('T')[0] ?? '',
+      odi: m.matchType === 'odi' ? 1 : 0,
+      t20: m.matchType === 't20' ? 1 : 0,
+      test: m.matchType === 'test' ? 1 : 0,
+      squads: 2,
+      matches: 1,
+      status: 'ongoing',
+    });
+  }
+
+  return Array.from(byName.values()).sort((a, b) =>
+    b.name.localeCompare(a.name)
+  );
+}
+
+export async function getSeriesList(): Promise<SeriesDetailData[]> {
+  const data = await fetchCricApi<SeriesDetailData[]>('series', '', 'no-store');
+  if (data && data.length > 0) return data;
+
+  const matches = await getCricScoreMatches();
+  if (matches.length > 0) {
+    return deriveSeriesFromMatches(matches);
+  }
+
+  return [];
 }
 
 export async function getSeriesInfo(seriesId: string) {

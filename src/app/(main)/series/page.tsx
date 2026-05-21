@@ -7,18 +7,24 @@ import { RiErrorWarningLine } from 'react-icons/ri';
 // Force the page to be dynamic to ensure it re-renders with new search params
 export const dynamic = 'force-dynamic';
 
-export default async function SeriesListPage({ searchParams }: { searchParams?: { status?: string } }) {
+export default async function SeriesListPage({
+    searchParams,
+}: {
+    searchParams?: Promise<{ status?: string }>;
+}) {
     const params = await searchParams;
     const currentStatus = params?.status?.toLowerCase() || 'all';
 
     const apiSeries = await getSeriesList();
 
-    if (!apiSeries) {
+    if (!apiSeries.length) {
         return (
             <div className="container mx-auto px-4 py-16 text-center">
                 <RiErrorWarningLine className="w-16 h-16 mx-auto text-app-primary opacity-50" />
                 <h2 className="mt-4 text-2xl font-bold">Failed to Load Series</h2>
-                <p className="text-app-text-muted mt-2">Could not fetch data from the API. Please check your API key and network connection.</p>
+                <p className="text-app-text-muted mt-2">
+                    Could not fetch series data. Ensure <code className="text-xs bg-app-card-bg px-1 rounded">CRICAPI_KEY</code> is set in .env.local and restart the dev server.
+                </p>
             </div>
         );
     }

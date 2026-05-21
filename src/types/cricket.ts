@@ -119,6 +119,7 @@ export interface MatchPreviewProps {
     startTime: string;
     result: string;
     seriesName: string;
+    matchType?: string;
 }
 
 export interface SeriesPreviewProps {

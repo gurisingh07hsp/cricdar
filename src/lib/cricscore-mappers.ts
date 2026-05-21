@@ -37,17 +37,32 @@ export function parseScoreLine(scoreStr?: string): { score: string; overs: strin
   return { score: scoreStr, overs: '' };
 }
 
-function msToMatchFlags(ms: string): {
+function msToMatchFlags(
+  ms: string,
+  status: string
+): {
   matchStarted: boolean;
   matchEnded: boolean;
   previewStatus: 'Live' | 'Upcoming' | 'Finished';
 } {
-  if (ms === 'live') {
-    return { matchStarted: true, matchEnded: false, previewStatus: 'Live' };
-  }
-  if (ms === 'result') {
+  const statusLower = status.toLowerCase();
+
+  if (ms === 'result' || statusLower.includes('won') || statusLower.includes('drawn')) {
     return { matchStarted: true, matchEnded: true, previewStatus: 'Finished' };
   }
+
+  if (ms === 'live') {
+    const notStarted =
+      statusLower.includes('match starts') ||
+      (!statusLower.includes('opt to') &&
+        !statusLower.includes('innings') &&
+        !statusLower.includes('won'));
+    if (notStarted && !statusLower.includes('/')) {
+      return { matchStarted: false, matchEnded: false, previewStatus: 'Upcoming' };
+    }
+    return { matchStarted: true, matchEnded: false, previewStatus: 'Live' };
+  }
+
   return { matchStarted: false, matchEnded: false, previewStatus: 'Upcoming' };
 }
 
@@ -85,7 +100,7 @@ function scoreLinesToApiScores(
 export function mapCricScoreToApiMatch(item: CricScoreMatch): ApiMatch {
   const t1 = parseTeamLabel(item.t1);
   const t2 = parseTeamLabel(item.t2);
-  const flags = msToMatchFlags(item.ms);
+  const flags = msToMatchFlags(item.ms, item.status);
   const date = item.dateTimeGMT?.split('T')[0] ?? '';
 
   return {
@@ -109,27 +124,42 @@ export function mapCricScoreToApiMatch(item: CricScoreMatch): ApiMatch {
   };
 }
 
+function scoreDisplay(
+  parsed: { score: string; overs: string },
+  flags: ReturnType<typeof msToMatchFlags>,
+  showPlaceholder: boolean
+): { score: string; overs: string } {
+  if (parsed.score) return parsed;
+  if (flags.previewStatus === 'Live' && showPlaceholder) {
+    return { score: '—', overs: '' };
+  }
+  if (flags.previewStatus === 'Live') {
+    return { score: 'Yet to bat', overs: '' };
+  }
+  return { score: '', overs: '' };
+}
+
 export function mapCricScoreToMatchPreview(item: CricScoreMatch): MatchPreviewProps {
   const api = mapCricScoreToApiMatch(item);
   const t1 = parseTeamLabel(item.t1);
   const t2 = parseTeamLabel(item.t2);
   const s1 = parseScoreLine(item.t1s);
   const s2 = parseScoreLine(item.t2s);
-  const flags = msToMatchFlags(item.ms);
+  const flags = msToMatchFlags(item.ms, item.status);
+  const t1HasScore = !!s1.score;
+  const t2HasScore = !!s2.score;
 
   const team1: TeamInfo = {
     name: t1.name,
     shortName: t1.shortName,
     logoUrl: item.t1img,
-    score: s1.score,
-    overs: s1.overs,
+    ...scoreDisplay(s1, flags, t1HasScore || !t2HasScore),
   };
   const team2: TeamInfo = {
     name: t2.name,
     shortName: t2.shortName,
     logoUrl: item.t2img,
-    score: s2.score,
-    overs: s2.overs,
+    ...scoreDisplay(s2, flags, t2HasScore || !t1HasScore),
   };
 
   return {
@@ -141,6 +171,7 @@ export function mapCricScoreToMatchPreview(item: CricScoreMatch): MatchPreviewPr
     startTime: api.dateTimeGMT,
     result: item.status,
     seriesName: item.series,
+    matchType: item.matchType,
   };
 }
 
