@@ -22,6 +22,7 @@ export default function Navbar() {
         { href: "/matches", label: "Matches" },
         { href: "/matches?status=live", label: "Live" },
         { href: "/matches?status=upcoming", label: "Upcoming" },
+        { href: "/leagues", label: "Leagues" },
         { href: "/series", label: "Series" }
     ];
 

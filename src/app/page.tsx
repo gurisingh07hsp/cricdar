@@ -2,10 +2,8 @@
 import React from "react";
 import Link from "next/link";
 import { 
-  RiBroadcastLine, 
   RiTrophyLine, 
   RiTeamLine, 
-  RiSignalWifiErrorLine,
   RiMedalLine,
   RiGlobeLine,
   RiArticleLine
@@ -17,7 +15,6 @@ import { mapCricScoreToMatchPreview } from "@/lib/cricscore-mappers";
 import { mapApiSeriesToSeriesPreview } from "@/lib/data-mappers";
 
 // Component Imports
-import MatchPreviewCard from "@/components/common/MatchPreviewCard";
 import SeriesPreviewCard from "@/components/common/SeriesPreviewCard";
 import LiveScoresSection from "@/components/common/LiveScoresSection";
 
@@ -132,41 +129,95 @@ export default async function HomePage() {
     <div className="min-h-screen bg-app-bg">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="grid grid-cols-1 lg:grid-cols-6 gap-6">
-          
-          {/* Left Sidebar */}
-          <div className="lg:col-span-1 space-y-6">
 
+          {/* Main Content — first on mobile */}
+          <div className="lg:col-span-4 space-y-6 order-1 lg:order-2">
 
-            {liveMatches.length > 0 ? (
-              <div className="bg-app-surface lg:hidden block border border-app-border rounded-lg p-6">
-                <div className="flex items-center justify-between mb-6">
-                  <div className="flex items-center space-x-2">
-                    <RiBroadcastLine className="w-6 h-6 text-app-primary" />
-                    <h2 className="text-xl font-bold text-app-text-base">Live Matches</h2>
-                  </div>
-                  <Link href="/matches?status=live" className="text-sm text-app-primary hover:text-app-primary-hover">
-                    View All
-                  </Link>
+            <div className="bg-app-surface border border-app-border rounded-lg p-4 sm:p-6">
+              <LiveScoresSection initialMatches={liveScoresInitial} />
+            </div>
+
+            {/* Latest News */}
+            <div className="bg-app-surface hidden lg:block border border-app-border rounded-lg p-6">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center space-x-2">
+                  <RiArticleLine className="w-6 h-6 text-app-primary" />
+                  <h2 className="text-xl font-bold text-app-text-base">Latest News</h2>
                 </div>
-                <div className={`${_scrollContainerClasses}`}>
-                  {liveMatches.map(match => (
-                    <div key={match.id} className={_cardWrapperClasses}>
-                      <MatchPreviewCard {...match} />
+                <Link href="/news" className="text-sm text-app-primary hover:text-app-primary-hover">
+                  View All
+                </Link>
+              </div>
+              
+              {/* Featured News Article */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Main Featured Article */}
+                <div className="lg:col-span-2">
+                  <div className="bg-app-bg border border-app-border rounded-lg overflow-hidden hover:shadow-lg transition-shadow">
+                    <div className="h-64 bg-gradient-to-br from-app-primary/20 to-app-secondary/20 flex items-center justify-center relative">
+                      <RiArticleLine className="w-16 h-16 text-app-primary" />
+                      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
+                        <div className="text-xs text-white/80 mb-1">NEWS | {mockNewsPosts[0].publishedAt}</div>
+                        <Link href={`/news/${mockNewsPosts[0].slug}`} className="block">
+                          <h3 className="text-xl font-bold text-white mb-1 line-clamp-2 hover:text-app-primary/90 transition-colors">
+                            {mockNewsPosts[0].title}
+                          </h3>
+                        </Link>
+                        <div className="text-xs text-white/80">1 Hour ago</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Sidebar News Articles */}
+                <div className="lg:col-span-1 space-y-4">
+                  {mockNewsPosts.slice(1).map((post: any, index: number) => (
+                    <div key={post.id} className="bg-app-bg border border-app-border rounded-lg overflow-hidden hover:shadow-lg transition-shadow">
+                      <div className="flex space-x-3 p-3">
+                        <div className="w-16 h-16 bg-gradient-to-br from-app-primary/20 to-app-secondary/20 rounded flex items-center justify-center flex-shrink-0">
+                          <RiArticleLine className="w-6 h-6 text-app-primary" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <Link href={`/news/${post.slug}`} className="block">
+                            <h4 className="text-sm font-semibold text-app-text-base mb-1 line-clamp-2 hover:text-app-primary transition-colors">
+                              {post.title}
+                            </h4>
+                          </Link>
+                          <div className="text-xs text-app-text-muted mb-1">NEWS | {post.publishedAt}</div>
+                          <div className="text-xs text-app-text-muted">{index + 2} hours ago</div>
+                        </div>
+                      </div>
                     </div>
                   ))}
                 </div>
               </div>
-            ) : (
-              <div className="bg-app-surface border border-app-border rounded-lg p-8 text-center">
-                <RiSignalWifiErrorLine className="w-12 h-12 mx-auto text-app-text-muted mb-4" />
-                <h2 className="text-xl font-bold text-app-text-base mb-2">No Live Matches Currently</h2>
-                <p className="text-app-text-muted mb-4">Check back soon or browse upcoming matches.</p>
-                <Link href="/matches?status=upcoming" className="inline-block bg-app-primary text-white font-semibold px-6 py-2 rounded-lg hover:bg-app-primary-hover transition-colors">
-                  View Upcoming Matches
-                </Link>
+            </div>
+
+            {/* More Series to Explore */}
+            {moreSeriesToExplore.length > 0 && (
+              <div className="bg-app-surface border border-app-border rounded-lg p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center space-x-2">
+                    <RiTrophyLine className="w-6 h-6 text-app-primary" />
+                    <h2 className="text-xl font-bold text-app-text-base">More Series to Explore</h2>
+                  </div>
+                  <Link href="/series" className="text-sm text-app-primary hover:text-app-primary-hover">
+                    View All
+                  </Link>
+                </div>
+                <div className={`${_scrollContainerClasses}`}>
+                  {moreSeriesToExplore.map(series => (
+                    <div key={series.id} className={_cardWrapperClasses}>
+                      <SeriesPreviewCard {...series} />
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
+          </div>
 
+          {/* Left Sidebar — after live scores on mobile */}
+          <div className="lg:col-span-1 space-y-6 order-2 lg:order-1">
 
             <div className="bg-app-surface lg:hidden block border border-app-border rounded-lg p-6">
               <div className="flex items-center justify-between mb-6">
@@ -320,94 +371,8 @@ export default async function HomePage() {
             </div>
           </div>
 
-          {/* Main Content Area */}
-          <div className="lg:col-span-4 space-y-6">
-
-            <div className="bg-app-surface border border-app-border rounded-lg p-6">
-              <LiveScoresSection initialMatches={liveScoresInitial} />
-            </div>
-
-            {/* Latest News */}
-            <div className="bg-app-surface hidden lg:block border border-app-border rounded-lg p-6">
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center space-x-2">
-                  <RiArticleLine className="w-6 h-6 text-app-primary" />
-                  <h2 className="text-xl font-bold text-app-text-base">Latest News</h2>
-                </div>
-                <Link href="/news" className="text-sm text-app-primary hover:text-app-primary-hover">
-                  View All
-                </Link>
-              </div>
-              
-              {/* Featured News Article */}
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Main Featured Article */}
-                <div className="lg:col-span-2">
-                  <div className="bg-app-bg border border-app-border rounded-lg overflow-hidden hover:shadow-lg transition-shadow">
-                    <div className="h-64 bg-gradient-to-br from-app-primary/20 to-app-secondary/20 flex items-center justify-center relative">
-                      <RiArticleLine className="w-16 h-16 text-app-primary" />
-                      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
-                        <div className="text-xs text-white/80 mb-1">NEWS | {mockNewsPosts[0].publishedAt}</div>
-                        <Link href={`/news/${mockNewsPosts[0].slug}`} className="block">
-                          <h3 className="text-xl font-bold text-white mb-1 line-clamp-2 hover:text-app-primary/90 transition-colors">
-                            {mockNewsPosts[0].title}
-                          </h3>
-                        </Link>
-                        <div className="text-xs text-white/80">1 Hour ago</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Sidebar News Articles */}
-                <div className="lg:col-span-1 space-y-4">
-                  {mockNewsPosts.slice(1).map((post: any, index: number) => (
-                    <div key={post.id} className="bg-app-bg border border-app-border rounded-lg overflow-hidden hover:shadow-lg transition-shadow">
-                      <div className="flex space-x-3 p-3">
-                        <div className="w-16 h-16 bg-gradient-to-br from-app-primary/20 to-app-secondary/20 rounded flex items-center justify-center flex-shrink-0">
-                          <RiArticleLine className="w-6 h-6 text-app-primary" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <Link href={`/news/${post.slug}`} className="block">
-                            <h4 className="text-sm font-semibold text-app-text-base mb-1 line-clamp-2 hover:text-app-primary transition-colors">
-                              {post.title}
-                            </h4>
-                          </Link>
-                          <div className="text-xs text-app-text-muted mb-1">NEWS | {post.publishedAt}</div>
-                          <div className="text-xs text-app-text-muted">{index + 2} hours ago</div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* More Series to Explore */}
-            {moreSeriesToExplore.length > 0 && (
-              <div className="bg-app-surface border border-app-border rounded-lg p-6">
-                <div className="flex items-center justify-between mb-6">
-                  <div className="flex items-center space-x-2">
-                    <RiTrophyLine className="w-6 h-6 text-app-primary" />
-                    <h2 className="text-xl font-bold text-app-text-base">More Series to Explore</h2>
-                  </div>
-                  <Link href="/series" className="text-sm text-app-primary hover:text-app-primary-hover">
-                    View All
-                  </Link>
-                </div>
-                <div className={`${_scrollContainerClasses}`}>
-                  {moreSeriesToExplore.map(series => (
-                    <div key={series.id} className={_cardWrapperClasses}>
-                      <SeriesPreviewCard {...series} />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-
           {/* Right Sidebar */}
-          <div className="lg:col-span-1 space-y-6">
+          <div className="lg:col-span-1 space-y-6 order-3 lg:order-3">
             
             {/* Trending News */}
             <div className="bg-app-surface border border-app-border rounded-lg p-4">
