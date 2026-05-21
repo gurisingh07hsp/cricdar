@@ -5,6 +5,11 @@ import {
   mapCricApiScorecardEntries,
   buildMatchUpdatesFromScorecard,
 } from './cricscore-mappers';
+import type { LeagueConfig } from './leagues';
+import {
+  SeriesPointsRow,
+  SeriesSquadTeam,
+} from './league-mappers';
 
 const API_KEY =
   process.env.CRICAPI_KEY ??
@@ -175,24 +180,96 @@ export async function getSeriesInfo(seriesId: string) {
   return fetchCricApi<SeriesDetailData>('series_info', `id=${seriesId}`);
 }
 
+export async function getSeriesPoints(seriesId: string): Promise<SeriesPointsRow[]> {
+  const data = await fetchCricApi<SeriesPointsRow[]>('series_points', `id=${seriesId}`);
+  return data ?? [];
+}
+
+export async function getSeriesSquad(seriesId: string): Promise<SeriesSquadTeam[]> {
+  const data = await fetchCricApi<SeriesSquadTeam[]>('series_squad', `id=${seriesId}`);
+  return data ?? [];
+}
+
+/** Resolve CricAPI series id from config or a live cricScore match. */
+export async function resolveLeagueSeriesId(league: LeagueConfig): Promise<string | null> {
+  if (league.seriesId) return league.seriesId;
+
+  const matches = await getCricScoreMatches();
+  const hit = matches.find((m) =>
+    league.seriesNamePatterns.some((p) =>
+      m.series.toLowerCase().includes(p.toLowerCase())
+    )
+  );
+  if (!hit) return null;
+
+  const info = await getMatchInfo(hit.id);
+  return info?.series_id ?? null;
+}
+
+export interface LeaguePageData {
+  seriesId: string | null;
+  info: SeriesDetailData['info'] | null;
+  matchList: ApiMatch[];
+  points: SeriesPointsRow[];
+  squads: SeriesSquadTeam[];
+}
+
+export async function getLeaguePageData(league: LeagueConfig): Promise<LeaguePageData> {
+  const seriesId = await resolveLeagueSeriesId(league);
+
+  if (!seriesId) {
+    return { seriesId: null, info: null, matchList: [], points: [], squads: [] };
+  }
+
+  const [seriesInfo, points, squads] = await Promise.all([
+    getSeriesInfo(seriesId),
+    getSeriesPoints(seriesId),
+    getSeriesSquad(seriesId),
+  ]);
+
+  return {
+    seriesId,
+    info: seriesInfo?.info ?? null,
+    matchList: seriesInfo?.matchList ?? [],
+    points,
+    squads,
+  };
+}
+
 export async function getPlayerInfo(playerId: string): Promise<PlayerInfo | null> {
   const data = await fetchCricApi<PlayerInfo>('players_info', `offset=0&id=${playerId}`);
   return data;
 }
 
-export async function getAllPlayers(offset: number = 0): Promise<{
+export interface PlayersListResponse {
   status: string;
-  data: unknown[];
-} | null> {
+  data: Array<{ id: string; name: string; country: string }>;
+  info?: {
+    totalRows?: number;
+    offsetRows?: number;
+    hitsLimit?: number;
+  };
+}
+
+/** Paginated player list. Use `search` to find players by name (e.g. Kohli, Virat Kohli). */
+export async function fetchPlayersList(
+  offset: number = 0,
+  search?: string
+): Promise<PlayersListResponse | null> {
   if (!API_KEY) return null;
 
+  const params = new URLSearchParams({
+    apikey: API_KEY,
+    offset: String(offset),
+  });
+  if (search?.trim()) params.set('search', search.trim());
+
   try {
-    const response = await fetch(
-      `${BASE_URL}/players?apikey=${API_KEY}&offset=${offset}`,
-      { cache: 'no-store' }
-    );
-    const data = await response.json();
-    if (data.status === 'success' && data.data) return data;
+    const response = await fetch(`${BASE_URL}/players?${params}`, {
+      cache: 'no-store',
+    });
+    const json = (await response.json()) as PlayersListResponse;
+    if (json.status === 'success' && json.data) return json;
     return null;
   } catch (error) {
     console.error('Error fetching players:', error);
