@@ -11,29 +11,34 @@ export function mapApiSeriesToSeriesPreview(series: SeriesDetailData): SeriesPre
     if (series.t20 > 0) format.push("T20");
 
     const yearMatch = series.name.match(/\b(\d{4})\b/);
-    const year = yearMatch ? yearMatch[1] : new Date(series.startDate).getFullYear().toString();
+    const displayYear = yearMatch
+        ? yearMatch[1]
+        : new Date(series.startDate).getFullYear().toString();
 
-    // FIX: Implement robust logic to determine the series status dynamically.
     let status: 'Upcoming' | 'Ongoing' | 'Finished' = 'Upcoming';
     const now = new Date();
     const startDate = new Date(series.startDate);
-    
-    // The endDate from the API is tricky (e.g., "Jul 11"). We need to combine it with the correct year.
-    // We assume the endDate is in the same year as the startDate.
-    const endDate = new Date(`${series.endDate}, ${startDate.getFullYear()}`);
+    const startYear = startDate.getFullYear();
+    const endDate = new Date(`${series.endDate}, ${startYear}`);
+    const endValid = !Number.isNaN(endDate.getTime());
+    const startValid = !Number.isNaN(startDate.getTime());
 
-    if (now > endDate) {
-        status = 'Finished';
-    } else if (now >= startDate && now <= endDate) {
+    if (startValid && endValid) {
+        if (now > endDate) {
+            status = 'Finished';
+        } else if (now >= startDate && now <= endDate) {
+            status = 'Ongoing';
+        } else {
+            status = 'Upcoming';
+        }
+    } else if (startValid && now >= startDate) {
         status = 'Ongoing';
-    } else {
-        status = 'Upcoming';
     }
 
     return {
         id: series.id,
         name: series.name,
-        year: year,
+        year: displayYear,
         format: format.join(', '),
         country: 'International', // This is a placeholder
         status: status, // The status is now correctly calculated.
