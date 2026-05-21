@@ -12,12 +12,14 @@ import {
 } from "react-icons/ri";
 
 // API and Mapper Imports
-import { getAllMatches, getSeriesList } from "@/lib/cricketdata-api";
-import { mapApiMatchToMatchPreview, mapApiSeriesToSeriesPreview } from "@/lib/data-mappers";
+import { getCricScoreMatches, getSeriesList } from "@/lib/cricketdata-api";
+import { mapCricScoreToMatchPreview } from "@/lib/cricscore-mappers";
+import { mapApiSeriesToSeriesPreview } from "@/lib/data-mappers";
 
 // Component Imports
 import MatchPreviewCard from "@/components/common/MatchPreviewCard";
 import SeriesPreviewCard from "@/components/common/SeriesPreviewCard";
+import LiveScoresSection from "@/components/common/LiveScoresSection";
 
 // Mock news data for latest news section
 const mockNewsPosts = [
@@ -99,21 +101,24 @@ const mockTopTeams = [
 export const dynamic = 'force-dynamic';
 
 export default async function HomePage() {
-  let apiMatches = null;
+  let cricScoreItems = null;
   let apiSeries = null;
 
   try {
-    [apiMatches, apiSeries] = await Promise.all([
-      getAllMatches(),
+    [cricScoreItems, apiSeries] = await Promise.all([
+      getCricScoreMatches(),
       getSeriesList()
     ]);
   } catch (error) {
     console.error('Error fetching data:', error);
-    // Continue with empty data - the page will show mock data or empty states
   }
 
-  const allMatches = (apiMatches || []).map(mapApiMatchToMatchPreview);
+  const allMatches = (cricScoreItems || []).map(mapCricScoreToMatchPreview);
   const liveMatches = allMatches.filter(m => m.status === 'Live').slice(0, 6);
+  const liveScoresInitial =
+    liveMatches.length > 0
+      ? liveMatches
+      : allMatches.filter(m => m.status === 'Finished').slice(0, 6);
   const _upcomingMatches = allMatches.filter(m => m.status === 'Upcoming').slice(0, 4);
 
   const allSeries = (apiSeries || []).map(mapApiSeriesToSeriesPreview);
@@ -317,37 +322,10 @@ export default async function HomePage() {
 
           {/* Main Content Area */}
           <div className="lg:col-span-4 space-y-6">
-            
-            {/* Live Matches Section */}
-            {liveMatches.length > 0 ? (
-              <div className="bg-app-surface hidden lg:block border border-app-border rounded-lg p-6">
-                <div className="flex items-center justify-between mb-6">
-                  <div className="flex items-center space-x-2">
-                    <RiBroadcastLine className="w-6 h-6 text-app-primary" />
-                    <h2 className="text-xl font-bold text-app-text-base">Live Matches</h2>
-                  </div>
-                  <Link href="/matches?status=live" className="text-sm text-app-primary hover:text-app-primary-hover">
-                    View All
-                  </Link>
-                </div>
-                <div className={`${_scrollContainerClasses}`}>
-                  {liveMatches.map(match => (
-                    <div key={match.id} className={_cardWrapperClasses}>
-                      <MatchPreviewCard {...match} />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ) : (
-              <div className="bg-app-surface border border-app-border rounded-lg p-8 text-center">
-                <RiSignalWifiErrorLine className="w-12 h-12 mx-auto text-app-text-muted mb-4" />
-                <h2 className="text-xl font-bold text-app-text-base mb-2">No Live Matches Currently</h2>
-                <p className="text-app-text-muted mb-4">Check back soon or browse upcoming matches.</p>
-                <Link href="/matches?status=upcoming" className="inline-block bg-app-primary text-white font-semibold px-6 py-2 rounded-lg hover:bg-app-primary-hover transition-colors">
-                  View Upcoming Matches
-                </Link>
-              </div>
-            )}
+
+            <div className="bg-app-surface border border-app-border rounded-lg p-6">
+              <LiveScoresSection initialMatches={liveScoresInitial} />
+            </div>
 
             {/* Latest News */}
             <div className="bg-app-surface hidden lg:block border border-app-border rounded-lg p-6">

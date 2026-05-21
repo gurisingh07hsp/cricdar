@@ -85,10 +85,13 @@ export function mapApiMatchToMatchPreview(match: ApiMatch): MatchPreviewProps {
     // });
 
     let status: 'Live' | 'Upcoming' | 'Finished' = 'Upcoming';
+    const statusLower = match.status?.toLowerCase() ?? '';
     if (match.matchStarted && !match.matchEnded) {
         status = 'Live';
-    } else if (match.matchEnded) {
+    } else if (match.matchEnded || statusLower.includes('won') || statusLower.includes('drawn') || statusLower.includes('no result')) {
         status = 'Finished';
+    } else if (statusLower.includes('match starts') || statusLower.includes('preview')) {
+        status = 'Upcoming';
     }
 
     return {

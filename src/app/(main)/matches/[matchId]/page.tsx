@@ -1,35 +1,50 @@
-import { getMatchInfo } from '@/lib/cricketdata-api';
+import { getFullMatchDetail } from '@/lib/cricketdata-api';
 import { notFound } from 'next/navigation';
-import MatchHeader from './_components/MatchHeader';
+import MatchHeaderLive from './_components/MatchHeaderLive';
 import MatchInfoTab from './_components/MatchInfoTab';
-import ScorecardDisplay from './_components/ScorecardDisplay';
+import MatchDetailTabs from './_components/MatchDetailTabs';
 
-export default async function MatchDetailPage({ params }: { params: Promise<{ matchId: string }> }) {
-  const paramsObj = await params;
-  const matchInfo = await getMatchInfo(paramsObj.matchId);
+export const dynamic = 'force-dynamic';
 
-  if (!matchInfo) {
+export default async function MatchDetailPage({
+  params,
+}: {
+  params: Promise<{ matchId: string }>;
+}) {
+  const { matchId } = await params;
+  const detail = await getFullMatchDetail(matchId);
+
+  if (!detail) {
     notFound();
   }
+
+  const { match, scorecard, commentary, cricScoreSnap } = detail;
+  const isLive = match.matchStarted && !match.matchEnded;
 
   return (
     <div className="min-h-screen bg-app-bg">
       <div className="container mx-auto px-4 sm:px-6 py-8">
-        {/* Match Header */}
         <div className="mb-8">
-          <MatchHeader match={matchInfo} />
+          <MatchHeaderLive
+            matchId={matchId}
+            match={match}
+            scorecard={scorecard}
+            cricScore={cricScoreSnap}
+            isLive={isLive}
+          />
         </div>
 
-        {/* Main Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Scorecard Section */}
           <div className="lg:col-span-2">
-            <ScorecardDisplay score={matchInfo.score} matchtype={matchInfo.matchType || 'N/A'} />
+            <MatchDetailTabs
+              matchId={matchId}
+              initialScorecard={scorecard}
+              initialCommentary={commentary}
+              isLive={isLive}
+            />
           </div>
-          
-          {/* Match Info Section */}
           <div className="lg:col-span-1">
-            <MatchInfoTab match={matchInfo} />
+            <MatchInfoTab match={match} />
           </div>
         </div>
       </div>

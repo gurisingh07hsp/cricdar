@@ -1,8 +1,8 @@
-import { getAllMatches } from '@/lib/cricketdata-api';
+import { getCricScoreMatches } from '@/lib/cricketdata-api';
 import MatchFilterControls from './_components/MatchFilterControls';
 import MatchPreviewCard from '@/components/common/MatchPreviewCard';
 import { RiErrorWarningLine } from 'react-icons/ri';
-import { mapApiMatchToMatchPreview } from '@/lib/data-mappers';
+import { mapCricScoreToMatchPreview } from '@/lib/cricscore-mappers';
 
 // FIX: Add this line to force the page to be dynamic and not cached.
 export const dynamic = 'force-dynamic';
@@ -10,19 +10,19 @@ export const dynamic = 'force-dynamic';
 export default async function MatchesPage({ searchParams }: { searchParams?: Promise<{ status?: string }> }) {
   const params = await searchParams;
   const currentStatus = params?.status?.toLowerCase() || 'all';
-  const apiMatches = await getAllMatches();
+  const items = await getCricScoreMatches();
 
-  if (!apiMatches) {
+  if (!items.length) {
     return (
       <div className="container mx-auto px-4 py-16 text-center">
         <RiErrorWarningLine className="w-16 h-16 mx-auto text-app-primary opacity-50" />
         <h2 className="mt-4 text-2xl font-bold">Failed to Load Matches</h2>
-        <p className="text-app-text-muted mt-2">Could not fetch data from the API. Please check your API key and network connection.</p>
+        <p className="text-app-text-muted mt-2">Add CRICAPI_KEY to .env.local and restart the dev server.</p>
       </div>
     );
   }
 
-  const allMatches = apiMatches.map(mapApiMatchToMatchPreview);
+  const allMatches = items.map(mapCricScoreToMatchPreview);
 
   const filteredMatches = allMatches.filter(match => {
     if (currentStatus === 'all') return true;

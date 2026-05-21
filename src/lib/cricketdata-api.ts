@@ -1,128 +1,149 @@
-import { ApiMatch, SeriesDetailData, PlayerInfo } from '@/types/cricket';
+import { ApiMatch, SeriesDetailData, PlayerInfo, ScorecardEntry, CommentaryItem } from '@/types/cricket';
+import {
+  CricScoreMatch,
+  mapCricScoreToApiMatch,
+  mapCricApiScorecardEntries,
+  buildMatchUpdatesFromScorecard,
+} from './cricscore-mappers';
 
-const API_KEY = process.env.NEXT_PUBLIC_CRICKETDATA_API_KEY;
-const BASE_URL = process.env.NEXT_PUBLIC_CRICKETDATA_API_BASE_URL;
+const API_KEY =
+  process.env.CRICAPI_KEY ??
+  process.env.NEXT_PUBLIC_CRICKETDATA_API_KEY;
+const BASE_URL =
+  process.env.CRICAPI_BASE_URL ??
+  process.env.NEXT_PUBLIC_CRICKETDATA_API_BASE_URL ??
+  'https://api.cricapi.com/v1';
 
-async function fetchFromApi<T>(endpoint: string, params: string = '', cacheStrategy: RequestCache = 'no-store'): Promise<T | null> {
-    if (!API_KEY || !BASE_URL) {
-        console.error("CRITICAL: API credentials are not configured in .env.local");
-        return null;
-    }
-
-    // Correctly construct the URL with the API key as the first parameter
-    // and append any other params.
-    const url = `${BASE_URL}/${endpoint}?apikey=${API_KEY}${params ? '&' + params : ''}`;
-
-    try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
-
-        const response = await fetch(url, {
-            cache: cacheStrategy,
-            signal: controller.signal
-        });
-
-        clearTimeout(timeoutId);
-
-        if (!response.ok) {
-            const errorData = await response.json();
-            console.error(`API Error for endpoint ${endpoint}:`, errorData);
-            return null;
-        }
-
-        const result = await response.json();
-        console.log(`API Response for ${endpoint}:`, result);
-        return (result.data as T) || null;
-    } catch (error) {
-        console.error(`Failed to fetch from API endpoint: ${endpoint}`, error);
-        return null;
-    }
+interface CricApiResponse<T> {
+  status: string;
+  data: T;
+  reason?: string;
 }
 
-/**
- * Fetches all current matches.
- * The API endpoint for all matches is 'matches'.
- */
-export async function getAllMatches() {
-    return fetchFromApi<ApiMatch[]>('currentMatches', '', 'no-store');
-}
+async function fetchCricApi<T>(
+  endpoint: string,
+  params: string = '',
+  cacheStrategy: RequestCache = 'no-store'
+): Promise<T | null> {
+  if (!API_KEY) {
+    console.error('CRICAPI_KEY is not configured in .env.local');
+    return null;
+  }
 
-/**
- * Fetches detailed information for a single match by its ID.
- * The API endpoint is 'match_info'.
- * @param matchId The unique ID of the match.
- */
-export async function getMatchInfo(matchId: string) {
-    return fetchFromApi<ApiMatch>('match_info', `id=${matchId}`);
-}
+  const query = params ? `&${params}` : '';
+  const url = `${BASE_URL}/${endpoint}?apikey=${API_KEY}${query}`;
 
-/**
- * Fetches a list of all series (tournaments, tours).
- * The API endpoint is 'series'.
- */
-export async function getSeriesList() {
-    return fetchFromApi<SeriesDetailData[]>('series', '', 'no-store');
-}
-
-/**
- * Fetches detailed information for a single series by its ID.
- * The API endpoint is 'series_info'.
- * @param seriesId The unique ID of the series.
- */
-export async function getSeriesInfo(seriesId: string) {
-    return fetchFromApi<SeriesDetailData>('series_info', `id=${seriesId}`);
-}
-
-/**
- * Fetch player information by player ID
- */
-export async function getPlayerInfo(playerId: string): Promise<PlayerInfo | null> {
   try {
-    const response = await fetch(
-      `https://api.cricapi.com/v1/players_info?apikey=${API_KEY}&offset=0&id=${playerId}`,
-      { cache: 'no-store' }
-    );
-    
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    
-    const data = await response.json();
-    
-    if (data.status === 'success' && data.data) {
-      return data.data as PlayerInfo;
-    } else {
-      console.error('API Error:', data);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 12000);
+
+    const response = await fetch(url, {
+      cache: cacheStrategy,
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeoutId);
+    const result = (await response.json()) as CricApiResponse<T>;
+
+    if (result.status !== 'success' || !result.data) {
+      console.error(`CricAPI error (${endpoint}):`, result.reason ?? result.status);
       return null;
     }
+
+    return result.data;
   } catch (error) {
-    console.error('Error fetching player info:', error);
+    console.error(`Failed to fetch CricAPI endpoint: ${endpoint}`, error);
     return null;
   }
 }
 
-/**
- * Fetch all players list
- */
-export async function getAllPlayers(offset: number = 0): Promise<any> {
+/** Live scores + fixtures + results from cricScore endpoint. */
+export async function getCricScoreMatches(): Promise<CricScoreMatch[]> {
+  const data = await fetchCricApi<CricScoreMatch[]>('cricScore');
+  return data ?? [];
+}
+
+/** All matches mapped for list views. */
+export async function getAllMatches(): Promise<ApiMatch[] | null> {
+  const items = await getCricScoreMatches();
+  if (!items.length) return null;
+  return items.map(mapCricScoreToApiMatch);
+}
+
+export async function getMatchInfo(matchId: string): Promise<ApiMatch | null> {
+  return fetchCricApi<ApiMatch>('match_info', `id=${matchId}`);
+}
+
+export async function getMatchScorecard(matchId: string): Promise<ApiMatch | null> {
+  return fetchCricApi<ApiMatch>('match_scorecard', `id=${matchId}`);
+}
+
+export interface FullMatchDetail {
+  match: ApiMatch;
+  scorecard: ScorecardEntry[];
+  commentary: CommentaryItem[];
+  cricScoreSnap?: import('./cricscore-mappers').CricScoreMatch | null;
+}
+
+export async function getFullMatchDetail(
+  matchId: string
+): Promise<FullMatchDetail | null> {
+  const [info, scorecardData, cricScoreList] = await Promise.all([
+    getMatchInfo(matchId),
+    getMatchScorecard(matchId),
+    getCricScoreMatches(),
+  ]);
+  const cricScoreSnap = cricScoreList.find((m) => m.id === matchId) ?? null;
+
+  const match = scorecardData ?? info;
+  if (!match) return null;
+
+  if (scorecardData?.score?.length && !info?.score?.length) {
+    match.score = scorecardData.score;
+  } else if (info) {
+    match.tossWinner = info.tossWinner ?? match.tossWinner;
+    match.tossChoice = info.tossChoice ?? match.tossChoice;
+    match.matchWinner = info.matchWinner ?? match.matchWinner;
+    if (info.score?.length) match.score = info.score;
+  }
+
+  const scorecard = mapCricApiScorecardEntries(scorecardData?.scorecard);
+
+  const commentary = buildMatchUpdatesFromScorecard(
+    match.status,
+    scorecard
+  );
+
+  return { match, scorecard, commentary, cricScoreSnap };
+}
+
+export async function getSeriesList() {
+  return fetchCricApi<SeriesDetailData[]>('series', '', 'no-store');
+}
+
+export async function getSeriesInfo(seriesId: string) {
+  return fetchCricApi<SeriesDetailData>('series_info', `id=${seriesId}`);
+}
+
+export async function getPlayerInfo(playerId: string): Promise<PlayerInfo | null> {
+  const data = await fetchCricApi<PlayerInfo>('players_info', `offset=0&id=${playerId}`);
+  return data;
+}
+
+export async function getAllPlayers(offset: number = 0): Promise<{
+  status: string;
+  data: unknown[];
+} | null> {
+  if (!API_KEY) return null;
+
   try {
     const response = await fetch(
-      `https://api.cricapi.com/v1/players?apikey=${API_KEY}&offset=${offset}`,
+      `${BASE_URL}/players?apikey=${API_KEY}&offset=${offset}`,
       { cache: 'no-store' }
     );
-    
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    
     const data = await response.json();
-    
-    if (data.status === 'success' && data.data) {
-      return data;
-    } else {
-      console.error('API Error:', data);
-      return null;
-    }
+    if (data.status === 'success' && data.data) return data;
+    return null;
   } catch (error) {
     console.error('Error fetching players:', error);
     return null;

@@ -33,6 +33,41 @@ export interface ApiMatch {
     tossWinner?: string;
     tossChoice?: string;
     matchWinner?: string; // This might be available when match ends
+    scorecard?: CricApiScorecardInningRaw[];
+}
+
+export interface CricApiScorecardInningRaw {
+    inning: string;
+    batting: Array<{
+        batsman: { name: string };
+        'dismissal-text'?: string;
+        r: number;
+        b: number;
+        '4s': number;
+        '6s': number;
+        sr: number;
+    }>;
+    bowling: Array<{
+        bowler: { name: string };
+        o: number;
+        m: number;
+        r: number;
+        w: number;
+        eco: number;
+    }>;
+    extras?: Record<string, number>;
+    totals?: Record<string, number>;
+}
+
+export interface CommentaryItem {
+    id: string;
+    text: string;
+    over: number;
+    ballNumber: number;
+    timestamp: number;
+    eventType: string;
+    inningsId: number;
+    batTeamScore?: number;
 }
 
 
@@ -164,6 +199,13 @@ export interface ScorecardEntry {
     bowlingteam: string;
     scores: BattingScore[];
     bowling: BowlingScore[];
+    inningsSummary?: {
+        runs: number;
+        wickets: number;
+        overs: number | string;
+        runRate?: number;
+        extras?: string;
+    };
 }
 
 
